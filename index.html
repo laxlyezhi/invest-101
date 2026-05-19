@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>金融思维 · 投资分析课 · Phase 1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-stone-50 text-stone-900 antialiased" x-data="app()" x-init="init()">
+
+<!-- 顶部导航 -->
+<header class="bg-white border-b border-stone-200 sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3">
+      <span class="font-mono text-sm text-emerald-700">A = L + E</span>
+      <h1 class="font-semibold">金融思维 · 投资分析课</h1>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 text-sm">
+      <div class="flex rounded border border-stone-200 bg-stone-50 p-0.5">
+        <button @click="showIntro()"
+          class="px-3 py-1 rounded text-sm"
+          :class="currentView === 'intro' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-900'">首页</button>
+        <button @click="enterCourse()"
+          class="px-3 py-1 rounded text-sm"
+          :class="currentView === 'course' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-900'">课程</button>
+      </div>
+      <span class="text-stone-500">Day <span x-text="completedDays + '/' + totalDays"></span></span>
+      <div class="w-24 sm:w-32 h-1.5 bg-stone-200 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-500 transition-all" :style="`width:${progressPct}%`"></div>
+      </div>
+      <button @click="showAI = !showAI" class="px-3 py-1 rounded bg-stone-900 text-white text-sm hover:bg-stone-700">AI 助手</button>
+      <button @click="showSettings = true" class="text-stone-500 hover:text-stone-900" title="设置">⚙</button>
+    </div>
+  </div>
+</header>
+
+<!-- 首页介绍 -->
+<section x-show="currentView === 'intro'" x-transition class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <!-- 标题区 — 全宽 -->
+  <div class="space-y-5">
+    <div class="text-xs uppercase tracking-widest text-emerald-700">Phase 1 · 财报精读</div>
+    <h2 class="text-3xl sm:text-5xl font-bold tracking-normal leading-tight">
+      用 6 周，把金融和财报读成一套能上手的判断框架
+    </h2>
+    <p class="text-base sm:text-lg leading-8 text-stone-700">
+      如果你不是金融专业出身，只是想自己看懂公司、少踩一点投资里的坑，这门课就是从这个起点写的。我们会从“钱为什么有时间价值”讲起，慢慢走到三张表、现金流和估值。中间遇到一些第一遍看不顺的概念很正常，不是你基础差，而是金融这套语言本来就绕。AI 助手会一直在旁边，随时帮你拆概念、换例子，解决学习过程中的困惑。
+    </p>
+  </div>
+
+  <div class="flex flex-wrap gap-3 mt-5">
+    <button @click="enterCourse()" class="px-5 py-3 rounded bg-emerald-700 text-white text-sm font-semibold hover:bg-emerald-800">
+      进入课程
+    </button>
+    <button @click="showAI = true" class="px-5 py-3 rounded border border-stone-300 bg-white text-stone-900 text-sm font-semibold hover:border-stone-900">
+      打开 AI 助手
+    </button>
+  </div>
+
+  <!-- 三个问题 + 侧边栏 — 并排 -->
+  <div class="mt-10 grid lg:grid-cols-[1.3fr_0.7fr] gap-8 lg:gap-12 items-start">
+    <div class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="h-px flex-1 bg-stone-200"></div>
+        <span class="text-xs uppercase tracking-[0.2em] font-medium text-stone-400 whitespace-nowrap">在学财报之前，先回答三个问题</span>
+        <div class="h-px flex-1 bg-stone-200"></div>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-5">
+        <!-- Q1 -->
+        <div class="group relative bg-white border border-stone-200 rounded-xl p-5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div class="absolute top-4 right-4 text-5xl font-black leading-none text-emerald-50 select-none" style="font-feature-settings:'tnum'">01</div>
+          <div class="relative">
+            <div class="h-8 w-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">1</div>
+            <h3 class="text-lg font-semibold text-stone-900 mb-3">公司为什么上市？</h3>
+            <div class="mb-3 pl-3 border-l-2 border-emerald-300">
+              <p class="text-sm text-emerald-800 italic leading-relaxed">"上市不就是圈钱吗？跟我有什么关系？"</p>
+            </div>
+            <p class="text-sm text-stone-600 leading-[1.75]">公司上市，是把私有股份变成公开可交易的股票。你买一股，就是这家公司的一个股东——哪怕只有百万分之一。上市的公司必须定期披露财报，这让你有了判断的依据：它赚不赚钱、欠多少债、现金流够不够活。这是你和公司之间的信息桥梁。</p>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="group relative bg-white border border-stone-200 rounded-xl p-5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div class="absolute top-4 right-4 text-5xl font-black leading-none text-emerald-50 select-none" style="font-feature-settings:'tnum'">02</div>
+          <div class="relative">
+            <div class="h-8 w-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">2</div>
+            <h3 class="text-lg font-semibold text-stone-900 mb-3">普通人凭什么能投资？</h3>
+            <div class="mb-3 pl-3 border-l-2 border-emerald-300">
+              <p class="text-sm text-emerald-800 italic leading-relaxed">"股市不就是赌场吗？我又不是金融专业……"</p>
+            </div>
+            <p class="text-sm text-stone-600 leading-[1.75]">投资不是赌运气，是买公司未来赚钱能力的一部分。过去 200 年，股票长期实际年化回报约 6.6%，远超债券和黄金——不是因为运气，而是因为公司持续创造价值。你不需要是金融专业，但你需要一套判断框架：什么公司值得关注、什么时候价格合理、什么时候该走开。</p>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="group relative bg-white border border-stone-200 rounded-xl p-5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div class="absolute top-4 right-4 text-5xl font-black leading-none text-emerald-50 select-none" style="font-feature-settings:'tnum'">03</div>
+          <div class="relative">
+            <div class="h-8 w-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">3</div>
+            <h3 class="text-lg font-semibold text-stone-900 mb-3">投资和投机有什么区别？</h3>
+            <div class="mb-3 pl-3 border-l-2 border-emerald-300">
+              <p class="text-sm text-emerald-800 italic leading-relaxed">"低买高卖不都一样吗？管它叫什么。"</p>
+            </div>
+            <p class="text-sm text-stone-600 leading-[1.75]">投机赌价格会涨，投资看东西值不值。投机的依据是"别人会出更高价"，投资的依据是"这家公司本身能赚多少钱"。读财报判断质量、算现金流估算价值、留安全边际应对不确定性——这就是这门课要教的框架。有了框架，你才知道自己在做什么决策。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div class="bg-white border border-stone-200 rounded-lg p-4">
+          <div class="text-2xl font-bold">6 周</div>
+          <div class="text-sm text-stone-600 mt-1">从第一性原理到估值框架</div>
+        </div>
+        <div class="bg-white border border-stone-200 rounded-lg p-4">
+          <div class="text-2xl font-bold" x-text="totalDays + ' 天'"></div>
+          <div class="text-sm text-stone-600 mt-1">按天学习、练习和复盘</div>
+        </div>
+        <div class="bg-white border border-stone-200 rounded-lg p-4">
+          <div class="text-2xl font-bold">实战</div>
+          <div class="text-sm text-stone-600 mt-1">用真实公司和年报巩固</div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="bg-white border border-stone-200 rounded-xl p-5 sm:p-6 shadow-sm lg:sticky lg:top-24 self-start">
+      <div class="text-sm font-semibold text-stone-500 mb-4">学完以后，你应该能做到</div>
+      <ul class="space-y-4 text-sm text-stone-700">
+        <li class="flex gap-3">
+          <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-600"></span>
+          <span>读懂资产负债表、利润表和现金流量表，不再只盯着净利润一个数字。</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-600"></span>
+          <span>用现金流、三表勾稽和杜邦分析识别利润质量、财务红旗和商业模式差异。</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-600"></span>
+          <span>理解利率、风险溢价和现金流怎样共同决定资产价格。</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-600"></span>
+          <span>完成一份基础公司分析和估值报告，形成自己的投资检查清单。</span>
+        </li>
+      </ul>
+    </aside>
+  </div>
+
+  <div class="mt-10 grid lg:grid-cols-2 gap-6">
+    <section class="bg-white border border-stone-200 rounded-xl p-5 sm:p-6">
+      <div class="text-xs uppercase tracking-widest text-stone-500 mb-4">课程内容</div>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <div class="font-semibold">金融第一性原理</div>
+          <div class="text-sm text-stone-600 mt-1">时间价值、复利、风险溢价和利率结构。</div>
+        </div>
+        <div class="p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <div class="font-semibold">资产负债表</div>
+          <div class="text-sm text-stone-600 mt-1">从 A = L + E 看资产质量、杠杆和生意模式。</div>
+        </div>
+        <div class="p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <div class="font-semibold">利润表</div>
+          <div class="text-sm text-stone-600 mt-1">收入确认、毛利率、三费、扣非和造假手法。</div>
+        </div>
+        <div class="p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <div class="font-semibold">现金流量表</div>
+          <div class="text-sm text-stone-600 mt-1">CFO、FCF、净现比和企业生命周期。</div>
+        </div>
+        <div class="p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <div class="font-semibold">三表勾稽与杜邦</div>
+          <div class="text-sm text-stone-600 mt-1">把三张表拼成一个动态系统。</div>
+        </div>
+        <div class="p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <div class="font-semibold">基础估值</div>
+          <div class="text-sm text-stone-600 mt-1">PE、PB、DCF、反向 DCF 和安全边际。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-sky-50 border border-sky-200 rounded-xl p-5 sm:p-6">
+      <div class="flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="h-12 w-12 shrink-0 rounded-full bg-sky-600 text-white flex items-center justify-center text-2xl font-bold">?</div>
+            <div>
+              <div class="text-xs uppercase tracking-widest text-sky-700 mb-1">随身小助教</div>
+              <h3 class="text-2xl font-bold text-stone-900">AI 助手怎么用</h3>
+              <div class="text-sm text-sky-800 mt-1">课程内容的补充说明</div>
+            </div>
+          </div>
+          <div class="hidden sm:block rounded-full bg-white border border-sky-200 px-3 py-1 text-xs font-semibold text-sky-800">卡住就问</div>
+        </div>
+
+        <div class="space-y-4 text-sm leading-7 text-stone-700">
+        <p>
+          AI 助手更像一个随时能问的助教。课程正文会尽量写得短、清楚，所以有些概念不会像教材那样展开很多页；如果你看到“应计制、折现率、净现比、杜邦拆解”这些词一下没反应过来，非常正常。
+        </p>
+        <p>
+          这时候可以直接问它：这段话到底在说什么？能不能用大白话解释？这个公式能不能拆成三步？给我拿一家 A 股或美股公司举例。它是课程内容的补充，帮你把复杂抽象的东西多转几次弯，直到真的听懂。
+        </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white border border-sky-100 p-3 shadow-sm">
+            <div class="text-xs font-semibold text-sky-700 mb-1">概念卡住</div>
+            <div class="text-stone-800">“把这个概念讲成人话。”</div>
+          </div>
+          <div class="rounded-lg bg-white border border-sky-100 p-3 shadow-sm">
+            <div class="text-xs font-semibold text-sky-700 mb-1">公式看晕</div>
+            <div class="text-stone-800">“把这个公式拆成三步。”</div>
+          </div>
+          <div class="rounded-lg bg-white border border-sky-100 p-3 shadow-sm">
+            <div class="text-xs font-semibold text-sky-700 mb-1">缺少例子</div>
+            <div class="text-stone-800">“用一家真实公司讲一下。”</div>
+          </div>
+          <div class="rounded-lg bg-white border border-sky-100 p-3 shadow-sm">
+            <div class="text-xs font-semibold text-sky-700 mb-1">反思没思路</div>
+            <div class="text-stone-800">“帮我追问两个角度。”</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="mt-6 bg-white border border-stone-200 rounded-xl p-5 sm:p-6">
+    <div class="flex items-center justify-between gap-4 mb-5">
+      <div>
+        <div class="text-xs uppercase tracking-widest text-emerald-700 mb-1">Learning Flow</div>
+        <h3 class="text-2xl font-bold text-stone-900">网站使用方式</h3>
+      </div>
+      <div class="hidden sm:block h-px flex-1 bg-stone-200"></div>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="rounded-lg border border-stone-200 bg-stone-50 p-5 min-h-40">
+        <div class="h-9 w-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">1</div>
+        <div class="text-lg font-bold text-stone-900 mb-2">按周推进</div>
+        <p class="text-sm leading-7 text-stone-600">从左侧目录选择周和天，每天大约 60-90 分钟。</p>
+      </div>
+      <div class="rounded-lg border border-stone-200 bg-stone-50 p-5 min-h-40">
+        <div class="h-9 w-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">2</div>
+        <div class="text-lg font-bold text-stone-900 mb-2">先读再练</div>
+        <p class="text-sm leading-7 text-stone-600">看完概念后完成练习，用计算和案例建立手感。</p>
+      </div>
+      <div class="rounded-lg border border-stone-200 bg-stone-50 p-5 min-h-40">
+        <div class="h-9 w-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">3</div>
+        <div class="text-lg font-bold text-stone-900 mb-2">写下反思</div>
+        <p class="text-sm leading-7 text-stone-600">把当天内容和自己的资产、工作或观察联系起来。</p>
+      </div>
+      <div class="rounded-lg border border-stone-200 bg-stone-50 p-5 min-h-40">
+        <div class="h-9 w-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-sm font-bold mb-4">4</div>
+        <div class="text-lg font-bold text-stone-900 mb-2">做实战</div>
+        <p class="text-sm leading-7 text-stone-600">每周用真实年报和公司案例把知识连成判断框架。</p>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div x-show="currentView === 'course'" x-transition x-cloak class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col lg:flex-row gap-8">
+
+  <!-- 侧边目录：两级导航 周→天 -->
+  <nav class="w-full lg:w-64 shrink-0">
+    <div class="lg:sticky lg:top-20 lg:max-h-[85vh] overflow-y-auto">
+      <h2 class="text-xs uppercase tracking-widest text-stone-500 mb-3" x-text="'Phase 1 · 财报精读（' + totalDays + ' 天）'"></h2>
+      <ul class="space-y-1">
+        <template x-for="(w, wi) in weeks" :key="wi">
+          <li>
+            <!-- 周标题 -->
+            <button @click="toggleWeek(wi)"
+              class="w-full text-left px-3 py-2 text-sm flex items-center justify-between group hover:bg-stone-100 rounded-t"
+              :class="currentWeek === wi ? 'bg-emerald-50 text-emerald-900' : ''">
+              <span>
+                <span class="text-stone-400 font-mono mr-1" x-text="'W'+(wi+1)"></span>
+                <span x-text="w.title"></span>
+              </span>
+              <span class="flex items-center gap-1">
+                <span x-show="isWeekDone(wi)" class="text-emerald-600 text-xs">✓</span>
+                <span x-text="expandedWeeks[wi] ? '▼' : '▶'" class="text-xs text-stone-400"></span>
+              </span>
+            </button>
+            <!-- 天列表 -->
+            <div x-show="expandedWeeks[wi]" x-transition class="ml-4 border-l border-stone-200 pl-2 space-y-0.5 mb-1">
+              <template x-for="(d, di) in w.days" :key="di">
+                <button @click="gotoDay(wi, di)"
+                  class="w-full text-left px-2 py-1.5 text-xs rounded flex items-center justify-between"
+                  :class="currentWeek === wi && currentDay === di ? 'bg-emerald-100 text-emerald-900 font-semibold' : 'text-stone-600 hover:bg-stone-100'">
+                  <span>
+                    <span class="font-mono mr-1 text-stone-400" x-text="'D'+(di+1)"></span>
+                    <span x-text="d.title"></span>
+                  </span>
+                  <span x-show="dayProgress(wi, di)?.done" class="text-emerald-600">✓</span>
+                </button>
+              </template>
+              <!-- 外部实战 -->
+              <template x-if="w.fieldwork">
+                <button @click="gotoDay(wi, w.days.length)"
+                  class="w-full text-left px-2 py-1.5 text-xs rounded flex items-center justify-between"
+                  :class="currentWeek === wi && currentDay === w.days.length ? 'bg-amber-100 text-amber-900 font-semibold' : 'text-amber-700 hover:bg-amber-50'">
+                  <span>📋 外部实战</span>
+                  <span x-show="dayProgress(wi, w.days.length)?.done" class="text-emerald-600">✓</span>
+                </button>
+              </template>
+            </div>
+          </li>
+        </template>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <main class="flex-1 min-w-0">
+    <template x-for="(w, wi) in weeks" :key="wi">
+      <div>
+        <template x-for="(d, di) in w.days" :key="'d'+wi+'-'+di">
+          <article x-show="currentWeek === wi && currentDay === di" class="bg-white border border-stone-200 rounded-xl p-6 sm:p-8 shadow-sm">
+          <!-- 日标题 -->
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="text-xs text-stone-500 mb-1" x-text="'W'+(wi+1)+' · DAY '+(di+1)+' · '+w.title"></div>
+              <h2 class="text-2xl sm:text-3xl font-bold tracking-tight" x-text="d.title"></h2>
+            </div>
+            <div class="text-right text-xs text-stone-500 shrink-0 ml-3">约 60-90 分钟</div>
+          </div>
+
+          <!-- 周核心思想（thesis） -->
+          <template x-if="di === 0 && w.thesis">
+            <div class="mb-8 p-4 bg-stone-900 text-stone-100 rounded-lg">
+              <div class="flex items-start gap-3">
+                <div class="text-emerald-300 text-xs font-semibold tracking-widest uppercase shrink-0 mt-0.5">本周底层</div>
+                <div class="text-sm leading-7" x-text="w.thesis"></div>
+              </div>
+              <template x-if="w.subtitle">
+                <div class="mt-2 pl-[5.4rem] text-xs text-stone-400" x-text="w.subtitle"></div>
+              </template>
+            </div>
+          </template>
+
+          <!-- 概念 -->
+          <template x-for="(sec, si) in d.sections" :key="si">
+            <section class="mb-10">
+              <h3 class="text-xl font-semibold mt-0 mb-4 pb-2 border-b border-stone-100 flex items-baseline gap-2">
+                <span class="text-emerald-700 font-mono text-sm shrink-0" x-text="(wi+1)+'.'+(di+1)+'.'+(si+1)"></span>
+                <span x-text="sec.title"></span>
+              </h3>
+              <div class="md-content prose prose-stone max-w-none" x-html="renderMd(sec.body)"></div>
+
+              <!-- 类比 / 直觉 -->
+              <template x-if="sec.analogy">
+                <div class="my-5 p-4 bg-sky-50 border-l-4 border-sky-400 rounded-r">
+                  <div class="text-xs font-semibold text-sky-700 mb-2 tracking-wider uppercase">💡 直觉与类比</div>
+                  <div class="text-sm text-stone-800 md-content analogy-content" x-html="renderMd(sec.analogy)"></div>
+                </div>
+              </template>
+
+              <!-- 案例 -->
+              <template x-if="sec.case">
+                <div class="my-5 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-r">
+                  <div class="text-xs font-semibold text-emerald-700 mb-2 tracking-wider uppercase">📊 真实案例 · <span x-text="sec.case.company"></span></div>
+                  <div class="text-sm text-stone-800 md-content" x-html="renderMd(sec.case.body)"></div>
+                </div>
+              </template>
+            </section>
+          </template>
+
+          <!-- 动手练习 -->
+          <template x-if="d.exercise">
+            <div class="my-8 p-6 border-2 border-dashed border-stone-300 rounded-lg" x-data="{ exText: getExercise(wi, di), exScore: null, exFeedback: '' }">
+              <div class="text-xs uppercase tracking-wider text-stone-500 mb-3">🧮 动手练习</div>
+              <div class="md-content text-sm" x-html="renderMd(d.exercise)"></div>
+              <!-- 交互组件占位 -->
+              <template x-if="d.widget">
+                <div :id="'widget-'+wi+'-'+di" class="mt-4"></div>
+              </template>
+              <!-- 作答区 -->
+              <div class="mt-4 pt-4 border-t border-stone-200">
+                <div class="text-xs font-semibold text-stone-600 mb-2">✍️ 写下你的解答</div>
+                <textarea x-model="exText" @input="saveExercise(wi, di, exText)"
+                  rows="6" class="w-full px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:border-amber-400"
+                  placeholder="写出你的计算过程和答案…"></textarea>
+                <div class="flex items-center gap-3 mt-3">
+                  <button @click="scoreExercise(wi, di, exText, d.exercise)"
+                    :disabled="dayProgress(wi, di)?._exScoring || !exText.trim() || !aiKey || !aiModel"
+                    class="px-3 py-1.5 bg-amber-600 text-white rounded text-xs hover:bg-amber-700 disabled:opacity-30">
+                    <span x-text="dayProgress(wi, di)?._exScoring ? '评分中…' : 'AI 打分'"></span>
+                  </button>
+                  <template x-if="!aiKey || !aiModel">
+                    <span class="text-xs text-stone-400">需先在 ⚙ 设置中配置 AI</span>
+                  </template>
+                  <template x-if="dayProgress(wi, di)?.exScore != null">
+                    <span class="text-sm font-semibold"
+                      :class="dayProgress(wi, di).exScore >= 14 ? 'text-emerald-700' : 'text-amber-700'"
+                      x-text="dayProgress(wi, di).exScore + '/20 分'"></span>
+                  </template>
+                </div>
+                <template x-if="dayProgress(wi, di)?.exFeedback">
+                  <div class="mt-3 p-3 bg-white rounded border border-stone-200 text-sm text-stone-700 md-content"
+                    x-html="renderMd(dayProgress(wi, di).exFeedback)"></div>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <!-- 反思 -->
+          <template x-if="d.reflection">
+            <div class="my-8 p-6 bg-violet-50 border border-violet-200 rounded-lg" x-data="{ reflText: getReflection(wi, di), reflScore: null, reflFeedback: '' }">
+              <div class="text-xs uppercase tracking-wider text-violet-700 mb-3">💭 今日反思</div>
+              <div class="text-sm text-stone-700 mb-3" x-html="renderMd(d.reflection)"></div>
+              <textarea x-model="reflText" @input="saveReflection(wi, di, reflText)"
+                rows="5" class="w-full px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:border-violet-400"
+                placeholder="写下你的思考…"></textarea>
+              <div class="flex items-center gap-3 mt-3">
+                <button @click="scoreReflection(wi, di, reflText, d.reflection)"
+                  :disabled="dayProgress(wi, di)?._scoring || !reflText.trim() || !aiKey || !aiModel"
+                  class="px-3 py-1.5 bg-violet-600 text-white rounded text-xs hover:bg-violet-700 disabled:opacity-30">
+                  <span x-text="dayProgress(wi, di)?._scoring ? '评分中…' : 'AI 评分'"></span>
+                </button>
+                <template x-if="dayProgress(wi, di)?.reflScore != null">
+                  <span class="text-sm font-semibold"
+                    :class="dayProgress(wi, di).reflScore >= 14 ? 'text-emerald-700' : 'text-amber-700'"
+                    x-text="dayProgress(wi, di).reflScore + '/20 分'"></span>
+                </template>
+              </div>
+              <template x-if="dayProgress(wi, di)?.reflFeedback">
+                <div class="mt-3 p-3 bg-white rounded border border-stone-200 text-sm text-stone-700 md-content"
+                  x-html="renderMd(dayProgress(wi, di).reflFeedback)"></div>
+              </template>
+            </div>
+          </template>
+
+          <!-- 小测验 -->
+          <template x-if="d.quiz && d.quiz.length">
+            <div class="mt-10 pt-6 border-t border-stone-200" x-data="{ quizOpen: false }">
+              <button @click="quizOpen = !quizOpen" class="flex items-center gap-2 text-sm font-semibold">
+                <span x-text="quizOpen ? '▼' : '▶'"></span>
+                <span>今日测验（<span x-text="d.quiz.length"></span> 题）</span>
+              </button>
+              <div x-show="quizOpen" x-transition class="mt-4 space-y-5">
+                <template x-for="(q, qi) in d.quiz" :key="qi">
+                  <div class="p-4 bg-stone-50 rounded" x-data="{ picked: null, showAnswer: false }">
+                    <div class="font-medium mb-3 text-sm" x-text="(qi+1)+'. '+q.q"></div>
+                    <div class="space-y-2">
+                      <template x-for="(opt, oi) in q.options" :key="oi">
+                        <button @click="picked = oi; showAnswer = true; markQuiz(wi, di, qi, oi === q.a)"
+                          :class="{
+                            'bg-emerald-100 border-emerald-500': showAnswer && oi === q.a,
+                            'bg-red-100 border-red-400': showAnswer && picked === oi && oi !== q.a,
+                            'hover:bg-white': !showAnswer
+                          }"
+                          class="w-full text-left px-3 py-2 border border-stone-200 rounded text-sm transition">
+                          <span x-text="String.fromCharCode(65+oi)+'. '+opt"></span>
+                        </button>
+                      </template>
+                    </div>
+                    <div x-show="showAnswer" x-transition class="mt-3 text-sm text-stone-700 bg-white p-3 rounded border border-stone-200">
+                      <div class="font-semibold mb-1" :class="picked === q.a ? 'text-emerald-700' : 'text-red-700'">
+                        <span x-text="picked === q.a ? '✓ 答对了' : '✗ 再想想'"></span>
+                      </div>
+                      <div class="md-content" x-html="renderMd(q.explain)"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <!-- 标记完成 + 导航 -->
+          <div class="mt-8 pt-6 border-t border-stone-200 flex items-center justify-between">
+            <button @click="prevDay()"
+              :disabled="currentWeek === 0 && currentDay === 0"
+              class="px-4 py-2 text-sm text-stone-600 hover:text-stone-900 disabled:opacity-30">
+              ← 上一课
+            </button>
+            <button @click="markDayDone(wi, di)"
+              class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-sm"
+              :class="dayProgress(wi, di)?.done ? 'opacity-50' : ''">
+              <span x-text="dayProgress(wi, di)?.done ? '已完成 ✓' : '标记完成 →'"></span>
+            </button>
+            <button @click="nextDay()"
+              :disabled="currentWeek === weeks.length-1 && currentDay === currentWeekDays - 1"
+              class="px-4 py-2 text-sm bg-stone-900 text-white rounded hover:bg-stone-700 disabled:opacity-30">
+              下一课 →
+            </button>
+          </div>
+        </article>
+      </template>
+
+      <!-- 外部实战页 -->
+      <article x-show="w.fieldwork && currentWeek === wi && currentDay === w.days.length" class="bg-white border border-amber-200 rounded-xl p-8 shadow-sm">
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <div class="text-xs text-amber-600 mb-1" x-text="'W'+(wi+1)+' · 外部实战'"></div>
+              <h2 class="text-2xl font-bold" x-text="w.fieldwork.title"></h2>
+            </div>
+            <div class="text-right text-xs text-stone-500">周末 · 约 2-3 小时</div>
+          </div>
+          <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded mb-6">
+            <div class="text-xs uppercase tracking-wider text-amber-600 mb-1">任务目标</div>
+            <div class="text-stone-800" x-text="w.fieldwork.goal"></div>
+          </div>
+          <div class="md-content prose prose-stone max-w-none" x-html="renderMd(w.fieldwork.body)"></div>
+          <div class="mt-8 flex items-center justify-between">
+            <button @click="prevDay()" class="px-4 py-2 text-sm text-stone-600 hover:text-stone-900">← 上一课</button>
+            <button @click="markDayDone(wi, w.days.length)"
+              class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 text-sm">标记实战完成 ✓</button>
+            <button @click="nextDay()" class="px-4 py-2 text-sm bg-stone-900 text-white rounded hover:bg-stone-700">下一课 →</button>
+          </div>
+        </article>
+      </div>
+    </template>
+  </main>
+</div>
+
+<!-- AI 助手悬浮面板 -->
+<aside x-show="showAI" x-transition x-cloak
+  class="fixed bottom-4 right-4 w-[calc(100vw-2rem)] max-w-96 h-[min(600px,calc(100vh-2rem))] bg-white border border-stone-300 rounded-xl shadow-2xl flex flex-col z-50">
+  <div class="p-3 border-b border-stone-200 flex justify-between items-center bg-stone-900 text-white rounded-t-xl">
+    <div>
+      <div class="font-semibold text-sm">📎 课程 AI 助手</div>
+      <div class="text-xs text-stone-400" x-text="(aiKey && aiModel) ? ('已连接 · ' + aiModel) : '未配置'"></div>
+    </div>
+    <button @click="showAI = false" class="text-stone-400 hover:text-white">✕</button>
+  </div>
+  <div class="flex-1 overflow-y-auto p-3 space-y-3" id="chat-log">
+    <template x-for="(m, mi) in chat" :key="mi">
+      <div :class="m.role === 'user' ? 'bg-emerald-50 ml-8' : 'bg-stone-100 mr-8'"
+        class="p-3 rounded text-sm">
+        <div class="text-xs font-semibold text-stone-500 mb-1" x-text="m.role === 'user' ? '你' : 'Claude'"></div>
+        <div x-html="renderMd(m.content)"></div>
+      </div>
+    </template>
+    <div x-show="aiLoading" class="text-sm text-stone-500 italic">思考中…</div>
+  </div>
+  <form @submit.prevent="askAI()" class="p-3 border-t border-stone-200">
+    <div class="flex gap-2">
+      <input type="text" x-model="aiInput"
+        placeholder="不懂就问：例如「什么是应计制？」"
+        class="flex-1 px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:border-stone-900" />
+      <button type="submit" :disabled="aiLoading || !aiInput.trim()"
+        class="px-3 py-2 bg-stone-900 text-white rounded text-sm disabled:opacity-30">发送</button>
+    </div>
+    <div x-show="!aiKey || !aiModel" class="text-xs text-amber-700 mt-2">
+      先在 ⚙ 设置里填入 Anthropic API Key 并选择模型
+    </div>
+  </form>
+</aside>
+
+<!-- 设置弹窗 -->
+<div x-show="showSettings" x-transition x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" @click.self="showSettings = false">
+  <div class="bg-white rounded-xl p-6 w-[480px]">
+    <h3 class="font-bold text-lg mb-4">设置</h3>
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-2">API Base URL</label>
+      <input type="text" x-model="aiBaseUrl" @change="saveKey()"
+        placeholder="https://api.anthropic.com/v1/messages 或 https://api.openai.com/v1/chat/completions"
+        class="w-full px-3 py-2 border border-stone-300 rounded text-sm font-mono" />
+      <div class="text-xs text-stone-500 mt-2">
+        支持 Anthropic、OpenAI 及兼容 OpenAI 格式的第三方 API。
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-2">API Key</label>
+      <input type="password" x-model="aiKey" @change="saveKey()"
+        placeholder="sk-ant-... 或 sk-..."
+        class="w-full px-3 py-2 border border-stone-300 rounded text-sm font-mono" />
+      <div class="text-xs text-stone-500 mt-2">
+        存储在浏览器 localStorage（本机使用）。
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-2">模型名称</label>
+      <input type="text" x-model="aiModel" @change="saveKey()"
+        placeholder="claude-sonnet-4-6 或 gpt-4o"
+        class="w-full px-3 py-2 border border-stone-300 rounded text-sm font-mono" />
+      <div class="text-xs text-stone-500 mt-2">
+        输入模型完整名称，如 claude-sonnet-4-6、gpt-4o 等。
+      </div>
+    </div>
+    <div class="mb-4">
+      <button @click="resetProgress()" class="text-sm text-red-600 hover:underline">重置学习进度</button>
+    </div>
+    <div class="flex justify-end">
+      <button @click="showSettings = false" class="px-4 py-2 bg-stone-900 text-white rounded text-sm">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/content.js?v=8"></script>
+<script src="js/calc.js?v=4"></script>
+<script src="js/ai.js?v=4"></script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>

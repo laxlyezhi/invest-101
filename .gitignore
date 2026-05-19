@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Broken / backup files
+*.broken.*
+*.broken
+*.bak
+js/EOF
+
+# Test / scratch files
+test.html
+test_content.html
+simple_test.html
+FIX_SUMMARY.md
+
+# Legacy week modules (content migrated to content.js)
+js/w1w2.js
+js/w3w4.js
+js/w5w6.js
+js/content/
+js/content_clean.js

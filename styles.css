@@ -1,0 +1,193 @@
+[x-cloak] { display: none !important; }
+
+/* ============================================================
+   Markdown content base
+   ============================================================ */
+.md-content {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #292524;
+  word-break: break-word;
+}
+.md-content > :first-child { margin-top: 0; }
+.md-content > :last-child { margin-bottom: 0; }
+
+.md-content p { margin: 0.7em 0; }
+
+/* 标题层次：md 里 ## / ### 用于子小节 */
+.md-content h2 {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin: 1.6em 0 0.6em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #e7e5e4;
+  color: #1c1917;
+}
+.md-content h3 {
+  font-size: 1.05em;
+  font-weight: 700;
+  margin: 1.4em 0 0.5em;
+  color: #1c1917;
+}
+.md-content h4 {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 1.2em 0 0.4em;
+  color: #1c1917;
+}
+
+/* 列表 */
+.md-content ul,
+.md-content ol {
+  margin: 0.7em 0;
+  padding-left: 1.6em;
+}
+.md-content ul { list-style: disc; }
+.md-content ol { list-style: decimal; }
+.md-content li { margin: 0.3em 0; }
+.md-content li > ul,
+.md-content li > ol { margin: 0.25em 0; }
+
+/* 内联代码 */
+.md-content code {
+  background: #f0fdf4;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+  color: #047857;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.md-content pre {
+  background: #1c1917;
+  color: #e7e5e4;
+  padding: 12px 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 13px;
+  margin: 1em 0;
+  line-height: 1.6;
+}
+.md-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* 引用 */
+.md-content blockquote {
+  border-left: 3px solid #a8a29e;
+  padding: 0.4em 0 0.4em 1em;
+  background: #fafaf9;
+  color: #44403c;
+  margin: 1em 0;
+  font-style: normal;
+  border-radius: 0 4px 4px 0;
+}
+.md-content blockquote p { margin: 0.3em 0; }
+
+/* 表格 */
+.md-content table {
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 14px;
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+.md-content th,
+.md-content td {
+  border: 1px solid #e7e5e4;
+  padding: 7px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.md-content th {
+  background: #f5f5f4;
+  font-weight: 600;
+  color: #1c1917;
+  white-space: nowrap;
+}
+.md-content tr:nth-child(even) td { background: #fafaf9; }
+
+/* 强调 */
+.md-content strong { color: #1c1917; font-weight: 700; }
+.md-content em { color: #44403c; }
+
+/* 链接 */
+.md-content a {
+  color: #047857;
+  text-decoration: underline;
+  text-decoration-color: #6ee7b7;
+  text-underline-offset: 2px;
+}
+.md-content a:hover { text-decoration-color: #047857; }
+
+/* 分隔线 */
+.md-content hr {
+  border: none;
+  border-top: 1px dashed #d6d3d1;
+  margin: 1.6em 0;
+}
+
+/* ============================================================
+   KaTeX 公式
+   ============================================================ */
+.md-content .katex-display {
+  margin: 1.2em 0;
+  padding: 0.8em 0.5em;
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.md-content .katex-display > .katex { font-size: 1.05em; }
+.md-content .katex { font-size: 1em; }
+
+/* 类比块里的公式背景透明（避免双层底色） */
+.analogy-content .katex-display {
+  background: #ffffff;
+  border-color: #bae6fd;
+}
+
+/* ============================================================
+   类比块（analogy）内部紧凑
+   ============================================================ */
+.analogy-content p { margin: 0.5em 0; }
+.analogy-content p:first-child { margin-top: 0; }
+.analogy-content p:last-child { margin-bottom: 0; }
+.analogy-content strong { color: #0c4a6e; }
+.analogy-content code {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+/* ============================================================
+   滚动条
+   ============================================================ */
+#chat-log::-webkit-scrollbar { width: 6px; }
+#chat-log::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+.md-content table::-webkit-scrollbar { height: 6px; }
+.md-content table::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+.md-content .katex-display::-webkit-scrollbar { height: 6px; }
+.md-content .katex-display::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+
+/* ============================================================
+   打印
+   ============================================================ */
+@media print {
+  .md-content .katex-display {
+    background: transparent;
+    border-color: transparent;
+  }
+}
