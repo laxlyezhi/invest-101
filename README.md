@@ -103,4 +103,4 @@ python3 -m http.server 8765
 
 ## License
 
-[MIT](./LICENSE) © laxlyezhi
+[Apache 2.0](./LICENSE) © laxlyezhi
