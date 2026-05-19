@@ -268,6 +268,10 @@ function app() {
         return `<!--MATH${mathBlocks.length - 1}-->`;
       });
       let html = marked.parse(protected);
+      // Sanitize XSS: strip dangerous HTML/scripts from AI-generated content
+      if (window.DOMPurify) {
+        html = DOMPurify.sanitize(html);
+      }
       // Restore math blocks
       mathBlocks.forEach((content, i) => {
         html = html.replace(`<!--MATH${i}-->`, `$$${content}$$`);

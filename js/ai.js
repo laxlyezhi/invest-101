@@ -4,6 +4,7 @@
 window.AI = {
   async ask({ baseUrl, apiKey, model, messages, systemPrompt }) {
     if (!baseUrl) throw new Error('未配置 API Base URL');
+    if (!baseUrl.startsWith('https://')) throw new Error('API Base URL 必须以 https:// 开头，以保护 API Key 传输安全');
     if (!apiKey) throw new Error('未配置 API Key');
     if (!model) throw new Error('未选择模型');
 
@@ -34,8 +35,9 @@ window.AI = {
       })
     });
     if (!res.ok) {
-      const txt = await res.text();
-      throw new Error('API 错误：' + txt);
+      let msg = `HTTP ${res.status}`;
+      try { const d = JSON.parse(await res.text()); msg = d.error?.message || msg; } catch {}
+      throw new Error('API 错误：' + msg);
     }
     const data = await res.json();
     return data.content?.[0]?.text || '(空响应)';
@@ -58,8 +60,6 @@ window.AI = {
       messages: openaiMessages
     };
 
-    console.log('[AI Request]', baseUrl, JSON.stringify(body, null, 2));
-
     const res = await fetch(baseUrl, {
       method: 'POST',
       headers: {
@@ -69,14 +69,13 @@ window.AI = {
       body: JSON.stringify(body)
     });
 
-    const resText = await res.text();
-    console.log('[AI Response]', res.status, resText);
-
     if (!res.ok) {
-      throw new Error('API 错误：' + resText);
+      let msg = `HTTP ${res.status}`;
+      try { const d = JSON.parse(await res.text()); msg = d.error?.message || msg; } catch {}
+      throw new Error('API 错误：' + msg);
     }
 
-    const data = JSON.parse(resText);
+    const data = await res.json();
     return data.choices?.[0]?.message?.content || '(空响应)';
   },
 
